@@ -109,13 +109,13 @@ typedef struct {
 /* 连通域相关定义 */
 #define MAX_AREA    (255) // [连通域递归次数相关]注意：uint8_t 不可以大于 255
 //连通域输出图像宏定义
-#define CDM_TEMP_BINARY                         BinaryImg_CDM
-#define CDM_TEMP_POINT_WHITE(x, y)        (BinaryImg_CDM[y][x] == 1)
-#define CDM_TEMP_POINT_BLACK(x, y)        (BinaryImg_CDM[y][x] == 0)
+#define CDM_TEMP_BINARY                         binary_img_cdm
+#define CDM_TEMP_POINT_WHITE(x, y)        (binary_img_cdm[y][x] == 1)
+#define CDM_TEMP_POINT_BLACK(x, y)        (binary_img_cdm[y][x] == 0)
 #define CDM_LAST_IMG_BLACK(x, y)                 (Last_IMG[y][x] == 0)
 #define CDM_TEMP_POINT(x, y)                (BinaryImg_CDM[y][x])
-#define CDM_TEMP_POINT_SET(x, y)            (BinaryImg_CDM[y][x] = 1)
-#define CDM_TEMP_POINT_RESET(x, y)        (BinaryImg_CDM[y][x] = 0)
+#define CDM_TEMP_POINT_SET(x, y)            (binary_img_cdm[y][x] = 1)
+#define CDM_TEMP_POINT_RESET(x, y)        (binary_img_cdm[y][x] = 0)
 
 
 //图像初步配置结构体
@@ -143,9 +143,9 @@ typedef struct {
 } ConDomainNode;
 extern ConDomainNode cdm;
 
-extern uint8 BinaryImg[IMG_ROW][IMG_COL];                //二值化图像
-extern uint8 BinaryImg_CDM[IMG_ROW][IMG_COL];        //连通域后输出的二值化图像
-extern uint8 CmpressedImg[IMG_ROW][IMG_COL];
+extern uint8 binary_img[IMG_ROW][IMG_COL];                //二值化图像
+extern uint8 binary_img_cdm[IMG_ROW][IMG_COL];        //连通域后输出的二值化图像
+extern uint8 compressed_img[IMG_ROW][IMG_COL];
 
 void Connected_Domain(ConDomainNode *cdm, int16 find_back);
 

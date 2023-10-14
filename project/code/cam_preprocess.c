@@ -7,17 +7,17 @@
 #include "cam_preprocess.h"
 
 //二值化宏定义
-#define CAM_POINT_GRAY(x, y)             (CmpressedImg[y][x])   //获取灰度值
-#define CAM_POINT_BINARY_SET(x, y)       (BinaryImg[y][x] = 1)  //二值化变白点
-#define CAM_POINT_BINARY_RESET(x, y)     (BinaryImg[y][x] = 0)     //二值化变黑点
+#define CAM_POINT_GRAY(x, y)             (compressed_img[y][x])     //获取灰度值
+#define CAM_POINT_BINARY_SET(x, y)       (binary_img[y][x] = 1)     //二值化变白点
+#define CAM_POINT_BINARY_RESET(x, y)     (binary_img[y][x] = 0)     //二值化变黑点
 
 //连通域输入图像宏定义
-#define CDM_POINT_WHITE(x, y)            (BinaryImg[y][x] == 1)
-#define CDM_POINT_BLACK(x, y)            (BinaryImg[y][x] == 0)
+#define IS_CDM_POINT_WHITE(x, y)            (binary_img[y][x] == 1)
+#define IS_CDM_POINT_BLACK(x, y)            (binary_img[y][x] == 0)
 
 
-#define CDM_offset  (0) //用于控制连通区域的最小连接点数(当连通区域在上一行边界时)，取 offset2 > 0
-#define RUN_MIN_LEN (0) //去掉长度小于等于0的点，（0）实际长度是1个像素
+#define CDM_offset  (0)     //用于控制连通区域的最小连接点数(当连通区域在上一行边界时)，取 offset2 > 0
+#define RUN_MIN_LEN (0)     //去掉长度小于等于0的点，（0）实际长度是1个像素
 
 
 //图像参数配置结构体变量
@@ -31,38 +31,38 @@ Img_Config ImgConf =
 
 
 //图像数据定义
-uint8 CmpressedImg[IMG_ROW][IMG_COL];            //压缩图像
-uint8 BinaryImg[IMG_ROW][IMG_COL];                        //原始二值化图像
-uint8 BinaryImg_CDM[IMG_ROW][IMG_COL];                //连通域后输出的二值化图像
-uint8 JumpRow[IMG_ROW], JumpColumn[IMG_COL];        //采样点信息
+uint8 compressed_img[IMG_ROW][IMG_COL];            //压缩图像
+uint8 binary_img[IMG_ROW][IMG_COL];                        //原始二值化图像
+uint8 binary_img_cdm[IMG_ROW][IMG_COL];                //连通域后输出的二值化图像
+uint8 sample_point_row[IMG_ROW], sample_point_column[IMG_COL];        //采样点信息
 
 
 ConDomainNode cdm;  //连通域结构体变量
 
-//采样点初始化
+/**
+ * @func		图像初始化
+ */
 void JumpInit(void) {
-    float jump_column = 0;
-    float jump_row = 0;
-    uint8_t count = 0;
+    float jump_column = (float) MT9V03X_W / (float) IMG_COL;
+    float jump_row = (float) MT9V03X_H / (float) IMG_ROW;
 
-    jump_column = (float) MT9V03X_W / (float) IMG_COL;
-    jump_row = (float) MT9V03X_H / (float) IMG_ROW;
+    uint8_t count;
 
     for (count = 0; count < IMG_COL; ++count) {
-        JumpColumn[count] = (int) (jump_column * count);
+        sample_point_column[count] = (int) (jump_column * count);
     }
     for (count = 0; count < IMG_ROW; ++count) {
-        JumpRow[count] = (int) (jump_row * count);
+        sample_point_row[count] = (int) (jump_row * count);
     }
 }
 
-//图像压缩
+/**
+ * @func		图像压缩
+ */
 void ImageCompression() {
-    uint8_t row, column = 0;
-
-    for (row = 0; row < IMG_ROW; ++row) {
-        for (column = 0; column < IMG_COL; ++column) {
-            CmpressedImg[row][column] = mt9v03x_image[JumpRow[row]][JumpColumn[column]];
+    for (uint8_t row = 0; row < IMG_ROW; ++row) {
+        for (uint8_t column = 0; column < IMG_COL; ++column) {
+            compressed_img[row][column] = mt9v03x_image[sample_point_row[row]][sample_point_column[column]];
         }
     }
 }
@@ -239,7 +239,7 @@ static int16_t FillRunVectors(ConDomainNode *cdm) {
     for (int16_t r = IMG_ROW - 1; r >= IMG_TOP; r--) {
         anyRun = 0;
 
-        if (CDM_POINT_WHITE(0, r)) // 如果第一个点是白点， 记录当前区域
+        if (IS_CDM_POINT_WHITE(0, r)) // 如果第一个点是白点， 记录当前区域
         {
             cdm->numOfRuns++;
             cdm->stRun[pstRun++] = 0; // 区域起始点为0
@@ -249,14 +249,14 @@ static int16_t FillRunVectors(ConDomainNode *cdm) {
 
         for (int16_t c = 1; c < IMG_COL; ++c) // 从第二列开始
         {
-            if (CDM_POINT_BLACK(c - 1, r) && CDM_POINT_WHITE(c, r)) // 左黑，当白，记录新区域
+            if (IS_CDM_POINT_BLACK(c - 1, r) && IS_CDM_POINT_WHITE(c, r)) // 左黑，当白，记录新区域
             {
                 cdm->numOfRuns++;
                 cdm->stRun[pstRun++] = c;
                 cdm->rowRun[prowRun++] = r;
                 anyRun = 1;
 
-            } else if (CDM_POINT_WHITE(c - 1, r) && CDM_POINT_BLACK(c, r)) // 左白，当黑，记录上一区域终点
+            } else if (IS_CDM_POINT_WHITE(c - 1, r) && IS_CDM_POINT_BLACK(c, r)) // 左白，当黑，记录上一区域终点
             {
                 cdm->enRun[penRun++] = c - 1;
             }
@@ -265,7 +265,7 @@ static int16_t FillRunVectors(ConDomainNode *cdm) {
                 return 0; // 超出表示范围
             }
         }
-        if (CDM_POINT_WHITE(IMG_COL - 1, r)) // 如果最后一个点是白，强制记录当前点为区域终点
+        if (IS_CDM_POINT_WHITE(IMG_COL - 1, r)) // 如果最后一个点是白，强制记录当前点为区域终点
         {
             cdm->enRun[penRun++] = IMG_COL - 1;
         }

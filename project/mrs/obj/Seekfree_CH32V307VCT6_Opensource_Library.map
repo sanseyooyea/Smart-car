@@ -5259,20 +5259,20 @@ END GROUP
                 0x0000000020005da8       0x14 ./zf_common/zf_common_debug.o
  .bss.image     0x0000000020005dbc      0xe10 ./user_c/main.o
                 0x0000000020005dbc                image
- .bss.CmpressedImg
+ .bss.compressed_img
                 0x0000000020006bcc      0xe10 ./code/cam_preprocess.o
-                0x0000000020006bcc                CmpressedImg
- .bss.BinaryImg
+                0x0000000020006bcc                compressed_img
+ .bss.binary_img
                 0x00000000200079dc      0xe10 ./code/cam_preprocess.o
-                0x00000000200079dc                BinaryImg
- .bss.BinaryImg_CDM
+                0x00000000200079dc                binary_img
+ .bss.binary_img_cdm
                 0x00000000200087ec      0xe10 ./code/cam_preprocess.o
-                0x00000000200087ec                BinaryImg_CDM
- .bss.JumpRow   0x00000000200095fc       0x3c ./code/cam_preprocess.o
-                0x00000000200095fc                JumpRow
- .bss.JumpColumn
+                0x00000000200087ec                binary_img_cdm
+ .bss.sample_point_row   0x00000000200095fc       0x3c ./code/cam_preprocess.o
+                0x00000000200095fc                sample_point_row
+ .bss.sample_point_column
                 0x0000000020009638       0x3c ./code/cam_preprocess.o
-                0x0000000020009638                JumpColumn
+                0x0000000020009638                sample_point_column
  .bss.cdm       0x0000000020009674      0xbfa ./code/cam_preprocess.o
                 0x0000000020009674                cdm
  *fill*         0x000000002000a26e        0x2 

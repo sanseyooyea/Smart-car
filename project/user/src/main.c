@@ -78,11 +78,11 @@ int main(void) {
         /*显示--解析图*/
 
         tft180_displayimage03x(mt9v03x_image[0], 60, 60);//原始图像
-        tft180_show_gray_image(60, 60, &BinaryImg_CDM[0][0], IMG_COL, IMG_ROW, 60, 60, 1);
+        tft180_show_gray_image(60, 60, &binary_img_cdm[0][0], IMG_COL, IMG_ROW, 60, 60, 1);
 
         for (int i = 0; i < 60; i++) {
             for (int j = 0; j < 60; j++) {
-                image[i][j] = BinaryImg_CDM[i][j];
+                image[i][j] = binary_img_cdm[i][j];
             }
         }
         image_scan(image);
